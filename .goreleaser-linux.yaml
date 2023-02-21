@@ -20,8 +20,8 @@ builds:
         goarch: amd64
         env:
           - CC=gcc
-    flags:
-      - -static
+    ldflags:
+      - -extldflags "-static"
 archives:
   - format: tar.gz
     # this name template makes the OS and Arch compatible with the results of uname.
