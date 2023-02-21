@@ -35,7 +35,10 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: birdwatcher-linux
-          path: dist/birdwatcher*           
+          path: |
+            dist/birdwatcher*
+            dist/checksums.txt
+
   build-darwin-binary:
     runs-on: macos-latest
     steps:
@@ -60,7 +63,9 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: birdwatcher-darwin
-          path: dist/birdwatcher*  
+          path: |
+            dist/birdwatcher* 
+            dist/checksums.txt 
   draft-release:
     needs: [build-linux-binary, build-darwin-binary]
     runs-on: ubuntu-latest
@@ -90,10 +95,10 @@ jobs:
       - name: Merge checksum file
         run: |
           cd ./birdwatcher-build
-          cat ./darwin/birdwatcher*checksums.txt >> checksums.txt
-          cat ./linux/birdwatcher*checksums.txt >> checksums.txt
-          rm ./darwin/birdwatcher*checksums.txt
-          rm ./linux/birdwatcher*checksums.txt
+          cat ./darwin/checksums.txt >> checksums.txt
+          cat ./linux/checksums.txt >> checksums.txt
+          rm ./darwin/checksums.txt
+          rm ./linux/checksums.txt
 
       - name: Release
         uses: goreleaser/goreleaser-action@v4
