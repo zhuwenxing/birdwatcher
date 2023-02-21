@@ -99,11 +99,10 @@ jobs:
           cat ./linux/checksums.txt >> checksums.txt
           rm ./darwin/checksums.txt
           rm ./linux/checksums.txt
-      - name: Stash git
+      - name: Check git status
         run: |
           tree
           git status
-          git stash
       - name: Release
         uses: goreleaser/goreleaser-action@v4
         with:
