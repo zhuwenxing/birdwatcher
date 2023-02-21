@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 jobs:
-  goreleaser:
+  build-linux-binary:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -23,16 +23,81 @@ jobs:
           go-version: 1.18
           cache: true
 
-      - name: Install cross-compilers for linux/arm64
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gcc-aarch64-linux-gnu librdkafka-dev
+      - uses: goreleaser/goreleaser-action@v4
+        with:
+          # either 'goreleaser' (default) or 'goreleaser-pro':
+          distribution: goreleaser
+          version: latest
+          args: release --skip-publish --config .goreleaser-linux.yaml
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+      - name: Upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: birdwatcher-linux
+          path: dist/birdwatcher*           
+  build-darwin-binary:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - run: git fetch --force --tags
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+          cache: true
 
       - uses: goreleaser/goreleaser-action@v4
         with:
           # either 'goreleaser' (default) or 'goreleaser-pro':
           distribution: goreleaser
           version: latest
-          args: release --clean
+          args: release --skip-publish --config .goreleaser-darwin.yaml
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }} 
+          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}    
+      - name: Upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: birdwatcher-darwin
+          path: dist/birdwatcher*  
+  draft-release:
+    needs: [build-linux-binary, build-darwin-binary]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - run: git fetch --force --tags
+      - uses: actions/setup-go@v3
+        with:
+          go-version: 1.18
+          cache: true
+      - name: Make directories
+        run: |
+          mkdir -p ./birdwatcher-build/linux
+          mkdir -p ./birdwatcher-build/darwin
+      - name: Download linux binaries
+        uses: actions/download-artifact@v3
+        with:
+          name: birdwatcher-linux
+          path: ./birdwatcher-build/linux
+      - name: Download darwin binaries
+        uses: actions/download-artifact@v3
+        with:
+          name: birdwatcher-darwin
+          path: ./birdwatcher-build/darwin          
+      - name: Merge checksum file
+        run: |
+          cd ./birdwatcher-build
+          cat ./darwin/birdwatcher*checksums.txt >> checksums.txt
+          cat ./linux/birdwatcher*checksums.txt >> checksums.txt
+          rm ./darwin/birdwatcher*checksums.txt
+          rm ./linux/birdwatcher*checksums.txt
+
+      - name: Release
+        uses: goreleaser/goreleaser-action@v4
+        with:
+          args: release --config scripts/.goreleaser-release.yaml
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
