@@ -6,6 +6,16 @@ changelog:
     exclude:
       - "^docs:"
       - "^test:"
+brews:
+  -
+    name: birdwatcher
+    folder: Formula
+    homepage: "https://github.com/zilliztech/milvus-backup"
+    repository:
+      owner: zilliztech
+      name: homebrew-tap
+      token: "{{ .Env.GITHUB_HOMEBREW_TOKEN }}"
+
 release:
   draft: true
   mode: append
