@@ -28,6 +28,15 @@ checksum:
   name_template: 'checksums.txt'
 snapshot:
   name_template: "{{ incpatch .Version }}-next"
+brews:
+  -
+    name: birdwatcher
+    folder: Formula
+    homepage: "https://github.com/milvus-io/birdwatcher"
+    repository:
+      owner: zilliztech
+      name: homebrew-tap
+      token: "{{ .Env.GITHUB_HOMEBREW_TOKEN }}"
 changelog:
   sort: asc
   filters:
