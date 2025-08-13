@@ -17,7 +17,6 @@ builds:
     goarch:
       - amd64
       - arm64
-      - arm
     overrides:
       - goos: linux
         goarch: amd64
@@ -25,10 +24,6 @@ builds:
           - CC=gcc
       - goos: linux
         goarch: arm64
-        env:
-          - CGO_ENABLED=0
-      - goos: linux
-        goarch: arm
         env:
           - CGO_ENABLED=0
     ldflags:
