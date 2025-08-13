@@ -1,0 +1,58 @@
+[
+    {
+        "name": "birdwatcher",
+        "path": "/home/runner/work/birdwatcher/birdwatcher/dist/birdwatcher_linux_amd64_v1/birdwatcher",
+        "goos": "linux",
+        "goarch": "amd64",
+        "goamd64": "v1",
+        "internal_type": 4,
+        "type": "Binary",
+        "extra": {
+            "Binary": "birdwatcher",
+            "Ext": "",
+            "ID": "birdwatcher"
+        }
+    },
+    {
+        "name": "birdwatcher_Linux_x86_64.tar.gz",
+        "path": "dist/birdwatcher_Linux_x86_64.tar.gz",
+        "goos": "linux",
+        "goarch": "amd64",
+        "goamd64": "v1",
+        "internal_type": 1,
+        "type": "Archive",
+        "extra": {
+            "Binaries": [
+                "birdwatcher"
+            ],
+            "Builds": [
+                {
+                    "name": "birdwatcher",
+                    "path": "/home/runner/work/birdwatcher/birdwatcher/dist/birdwatcher_linux_amd64_v1/birdwatcher",
+                    "goos": "linux",
+                    "goarch": "amd64",
+                    "goamd64": "v1",
+                    "internal_type": 4,
+                    "type": "Binary",
+                    "extra": {
+                        "Binary": "birdwatcher",
+                        "Ext": "",
+                        "ID": "birdwatcher"
+                    }
+                }
+            ],
+            "Checksum": "sha256:766faf04c17a8d480f683abdbd71c2a416757cb3f0870c0b3ee0ef3ac815929c",
+            "Format": "tar.gz",
+            "ID": "default",
+            "Replaces": null,
+            "WrappedIn": ""
+        }
+    },
+    {
+        "name": "checksums.txt",
+        "path": "dist/checksums.txt",
+        "internal_type": 12,
+        "type": "Checksum",
+        "extra": {}
+    }
+]
