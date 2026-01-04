@@ -23,20 +23,16 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
-            target_os: linux
+          - target_os: linux
             target_arch: amd64
-          - os: ubuntu-latest
-            target_os: linux
+          - target_os: linux
             target_arch: arm64
-          - os: macos-13  # Intel Mac for amd64
-            target_os: darwin
+          - target_os: darwin
             target_arch: amd64
-          - os: macos-latest  # Apple Silicon
-            target_os: darwin
+          - target_os: darwin
             target_arch: arm64
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest  # Cross-compile all platforms from Linux
 
     steps:
       - uses: actions/checkout@v4
@@ -62,11 +58,8 @@ jobs:
           cd python
           uv build --wheel
 
-      - name: Test installation (native platforms only)
-        if: |
-          (matrix.os == 'ubuntu-latest' && matrix.target_arch == 'amd64') ||
-          (matrix.os == 'macos-13' && matrix.target_arch == 'amd64') ||
-          (matrix.os == 'macos-latest' && matrix.target_arch == 'arm64')
+      - name: Test installation (linux/amd64 only)
+        if: matrix.target_os == 'linux' && matrix.target_arch == 'amd64'
         run: |
           cd python
           uv venv
