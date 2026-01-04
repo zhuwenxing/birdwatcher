@@ -16,6 +16,9 @@ bw_debug.log
 # vim
 *.sw[op]
 
+# vscode
+.vscode/
+
 # backup file
 *.bak.gz
 *.tar.gz
