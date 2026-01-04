@@ -2,6 +2,7 @@ package show
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -51,6 +52,11 @@ func (c *ComponentShow) SegmentCommand(ctx context.Context, p *SegmentParam) err
 	if err != nil {
 		fmt.Println("failed to list segments", err.Error())
 		return nil
+	}
+
+	// Handle JSON format separately
+	if p.Format == "json" {
+		return printSegmentsAsJSON(segments)
 	}
 
 	totalRC := int64(0)
@@ -141,6 +147,46 @@ func (c *ComponentShow) SegmentCommand(ctx context.Context, p *SegmentParam) err
 	fmt.Printf("--- Growing: %d, Sealed: %d, Flushed: %d, Dropped: %d\n", growing, sealed, flushed, dropped)
 	fmt.Printf("--- Small Segments: %d, row count: %d\t Other Segments: %d, row count: %d\n", small, smallCnt, other, otherCnt)
 	fmt.Printf("--- Total Segments: %d, row count: %d\n", healthy, totalRC)
+	return nil
+}
+
+func printSegmentsAsJSON(segments []*models.Segment) error {
+	type segmentJSON struct {
+		ID             int64    `json:"ID"`
+		CollectionID   int64    `json:"CollectionID"`
+		PartitionID    int64    `json:"PartitionID"`
+		State          string   `json:"State"`
+		Level          string   `json:"Level"`
+		NumOfRows      int64    `json:"NumOfRows"`
+		MaxRowNum      int64    `json:"MaxRowNum"`
+		InsertChannel  string   `json:"InsertChannel"`
+		StorageVersion int64    `json:"StorageVersion"`
+		IsSorted       bool     `json:"IsSorted"`
+		CompactionFrom []int64  `json:"CompactionFrom"`
+	}
+
+	results := make([]segmentJSON, 0, len(segments))
+	for _, seg := range segments {
+		results = append(results, segmentJSON{
+			ID:             seg.ID,
+			CollectionID:   seg.CollectionID,
+			PartitionID:    seg.PartitionID,
+			State:          seg.State.String(),
+			Level:          seg.Level.String(),
+			NumOfRows:      seg.NumOfRows,
+			MaxRowNum:      seg.MaxRowNum,
+			InsertChannel:  seg.InsertChannel,
+			StorageVersion: seg.StorageVersion,
+			IsSorted:       seg.IsSorted,
+			CompactionFrom: seg.CompactionFrom,
+		})
+	}
+
+	bs, err := json.Marshal(results)
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(bs))
 	return nil
 }
 

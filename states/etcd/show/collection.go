@@ -2,6 +2,7 @@ package show
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -114,8 +115,51 @@ func (rs *Collections) PrintAs(format framework.Format) string {
 			fmt.Fprintf(sb, "collection id %d\t collection name %s\n", coll.GetProto().ID, coll.GetProto().Schema.Name)
 		}
 		return sb.String()
+	case framework.FormatJSON:
+		return rs.PrintAsJSON()
 	}
 	return ""
+}
+
+func (rs *Collections) PrintAsJSON() string {
+	type kvPair struct {
+		Key   string `json:"key"`
+		Value string `json:"value"`
+	}
+	type collectionJSON struct {
+		ID                   int64    `json:"ID"`
+		DBID                 int64    `json:"db_id"`
+		State                string   `json:"state"`
+		Schema               any      `json:"schema"`
+		ConsistencyLevel     string   `json:"consistency_level"`
+		VirtualChannelNames  []string `json:"virtual_channel_names"`
+		PhysicalChannelNames []string `json:"physical_channel_names"`
+		Properties           []kvPair `json:"properties"`
+	}
+
+	results := make([]collectionJSON, 0, len(rs.collections))
+	for _, coll := range rs.collections {
+		proto := coll.GetProto()
+		props := make([]kvPair, 0, len(proto.Properties))
+		for _, p := range proto.Properties {
+			props = append(props, kvPair{Key: p.Key, Value: p.Value})
+		}
+		results = append(results, collectionJSON{
+			ID:                   proto.ID,
+			DBID:                 proto.DbId,
+			State:                proto.State.String(),
+			Schema:               proto.Schema,
+			ConsistencyLevel:     proto.ConsistencyLevel.String(),
+			VirtualChannelNames:  proto.VirtualChannelNames,
+			PhysicalChannelNames: proto.PhysicalChannelNames,
+			Properties:           props,
+		})
+	}
+	bs, err := json.Marshal(results)
+	if err != nil {
+		return err.Error()
+	}
+	return string(bs)
 }
 
 func (rs *Collections) Entities() any {

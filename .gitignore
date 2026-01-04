@@ -21,3 +21,6 @@ bw_debug.log
 *.tar.gz
 backups/
 
+#code agent
+claude.md
+agent.md
